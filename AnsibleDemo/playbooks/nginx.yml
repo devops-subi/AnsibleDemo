@@ -1,0 +1,53 @@
+---
+
+- name: This playbook will deploy nginx web server
+  hosts: all
+  become: yes
+  serial: 4
+  
+  vars:
+    - greeting_msg: Hello Ansible
+    - automation_tool: Ansible
+    - provisioner_tool: Docker  
+
+  vars_files:
+    - files/my_variables
+    - files/your_variables
+
+  tasks:
+    - name: Install nginx using apt
+      apt: name=nginx state=latest update_cache=yes
+      
+    - name: create nginx user
+      user: name=nginx shell=/bin/bash createhome=true
+ 
+    - name: Copy Configuration files for nginx
+      copy: src=files/nginx.conf dest=/etc/nginx/ backup=yes
+      
+    - name: Copy Configuration files for nginx sites
+      copy: src=files/from_local dest=/etc/nginx/sites-available/ backup=yes
+
+    - name: Copy Configuration files for nginx sites
+      copy: src=files/from_central dest=/etc/nginx/sites-available/ backup=yes
+
+    - name: create link from site-enabled
+      file: src=/etc/nginx/sites-available/from_central dest=/etc/nginx/sites-enabled/from_central.conf state=link
+
+    - name: create link from site-enabled
+      file: src=/etc/nginx/sites-available/from_local dest=/etc/nginx/sites-enabled/from_local.conf state=link
+ 
+    - name: nginx service start
+      service: name=nginx state=restarted
+
+    - name: Deploy web site content into nginx web server
+      template: src=template/index.html.j2 dest=/usr/share/nginx/html/index.html
+
+    - name: Print the values of user defined variables from files
+      debug: msg="Value of a is {{ a }} value of b is {{ b }}"
+      
+    - debug: msg="Value of a is {{ x }} value of b is {{ y }}"
+
+    - debug: msg="Value of a is {{ x }} value of b is {{ y }}"
+
+    - debug: msg="Mobile Number of {{item.value.name}} is {{item.value.mobile}}."
+      with_dict: "{{contacts}}"

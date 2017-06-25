@@ -1,0 +1,19 @@
+---
+
+- name: This play with spin the docker container from exiting docker image
+  hosts: 127.0.0.1
+  become : yes
+
+  vars:
+
+ 
+  tasks:     
+    - name: Spin a docker container
+      docker_container: name={{ item.d_name }} image={{ item.d_image }} state=started published_ports={{ item.port }}
+      with_items:
+           - { d_name: 'Ub_DoCo_1' , d_image: 'tektutorjegan/ansible' , port: '2204:22' }
+           - { d_name: 'Ub_DoCo_2' , d_image: 'tektutorjegan/ansible' , port: '2205:22' }
+           - { d_name: 'Ub_DoCo_3' , d_image: 'tektutorjegan/ansible' , port: '2206:22' }
+           - { d_name: 'Ce_DoCo_4' , d_image: 'centos7' , port: '2208:22' }
+           - { d_name: 'Ce_DoCo_5' , d_image: 'centos7' , port: '2209:22' }
+           - { d_name: 'Ce_DoCo_6' , d_image: 'centos7' , port: '2210:22' }

@@ -1,0 +1,37 @@
+---
+
+- name: This playbook will demostrate apt module
+  hosts: all
+  become: yes
+  serial: 4
+  
+  tasks:
+    - name: Install tree using apt module
+      apt: name=tree state=latest
+   
+    - name: Install wget
+      apt: name=wget state=latest
+    
+  
+- name: This play will deploy packages on dev
+  hosts: dev
+  become: yes
+  serial: 4
+ 
+  tasks:
+    - name: Install curl utility
+      apt: name=curl state=latest
+
+    - name: Install vim utility
+      apt: name=vim state=present 
+
+    - name: Install haproxy
+      apt: name=haproxy state=latest update_cache=yes
+ 
+- name: This play will deploy packages on qa
+  hosts: qa
+  become: yes 
+
+  tasks:
+    - name: Install nginx 
+      apt: name=nginx state=latest update_cache=yes

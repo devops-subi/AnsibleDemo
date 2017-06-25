@@ -1,0 +1,66 @@
+---
+
+- name: This play will perform deployment on conditions basis
+  hosts: all
+  become: yes
+  serial: 6
+ 
+  vars:
+     
+     packages:
+         - wget
+         - curl
+         - tree 
+         - telnet
+         - vim
+         - nginx
+
+     dir_path:
+         - /etc/nginx/sites-enabled/
+         - /var/logs/nginx/
+  
+  tasks:
+    - name: Install all software packages
+      apt: name={{ item }} state=present update_cache=yes
+      with_items: "{{ packages }}"
+      when: ( ansible_distribution == "Ubuntu" and ansible_os_family == "Debian" )
+
+    - name: Install epel release package on CentOS
+      yum: name=epel-release state=present update_cache=yes
+      when: ( ansible_distribution == "CentOS" and ansible_os_family == "RedHat" )
+
+    - name: Install packages on CentOS
+      yum: name={{ item }} state=present
+      with_items: "{{ packages }}"
+      when: ( ansible_distribution == "CentOS" and ansible_os_family == "RedHat" ) 
+
+    - name: Copy Configuration files for nginx
+      copy: src=files/nginx.conf dest=/etc/nginx/ backup=yes
+      #when: ( ansible_distribution == "CentOS" and ansible_os_family == "RedHat" )
+
+    - name: Copy Configuration files for nginx sites
+      copy: src=files/from_local dest=/etc/nginx/sites-available/ backup=yes
+      #when: ( ansible_distribution == "CentOS" and ansible_os_family == "RedHat" )
+    
+    - name: Copy Configuration files for nginx sites
+      copy: src=files/from_central dest=/etc/nginx/sites-available/ backup=yes
+      #when: ( ansible_distribution == "CentOS" and ansible_os_family == "RedHat" )
+
+    - name: Create sites-enabled directory
+      file: path={{ item }} state=directory mode=0755
+      with_items: "{{ dir_path }}"
+      #when: ( ansible_distribution == "CentOS" and ansible_os_family == "RedHat" )      
+
+    - name: create link from site-enabled
+      file: src=/etc/nginx/sites-available/from_central dest=/etc/nginx/sites-enabled/from_central.conf state=link
+      #when: ( ansible_distribution == "CentOS" and ansible_os_family == "RedHat" )
+
+    - name: create link from site-enabled
+      file: src=/etc/nginx/sites-available/from_local dest=/etc/nginx/sites-enabled/from_local.conf state=link
+      #when: ( ansible_distribution == "CentOS" and ansible_os_family == "RedHat" )
+      notify:
+         - Restart the nginx server
+
+  handlers:
+    - name: Restart the nginx server
+      service: name=nginx state=restarted

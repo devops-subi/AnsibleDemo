@@ -1,0 +1,10 @@
+---
+
+- name: This play will demostrate custom module
+  hosts: localhost
+ 
+  tasks:
+
+    - name: This play will sum to integers
+      add: firstnum=10 seconnum=20
+

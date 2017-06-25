@@ -1,0 +1,12 @@
+---
+
+- name: This playbook will demostrate the usage of Ansible Ping Module
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Check whether the Docker Containers are reachable
+      ping:
+   
+#    - name: nginx uninstall
+#      apt: name=nginx state=absent
